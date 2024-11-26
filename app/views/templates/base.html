@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}Recycling App{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', path='css/style.css') }}"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  </head>
+  <body>
+    <script>
+      // Verificar si el usuario es admin al cargar la página
+      let isAdmin = false;
+      try {
+        const token = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('access_token='))
+          ?.split('=')[1];
+        
+        if (token) {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          isAdmin = payload.is_admin || false;
+        }
+      } catch (e) {
+        console.error('Error al verificar admin:', e);
+      }
+    </script>
+
+    <nav>
+      <ul>
+        <li><a href="/">Inicio</a></li>
+        {% if request.cookies.get("access_token") %}
+          <li><a href="/evento">Eventos</a></li>
+          <li><a href="/reciclaje">Reciclaje</a></li>
+          <li><a href="/ranking">Ranking</a></li>
+          <script>
+            // Mostrar enlace de materiales solo si es admin
+            if (isAdmin) {
+              document.write('<li><a href="/materiales">Materiales</a></li>');
+            }
+          </script>
+          <li><a href="/logout">Cerrar Sesión</a></li>
+        {% else %}
+          <li><a href="/login">Iniciar Sesión</a></li>
+          <li><a href="/register">Registrarse</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Verificar si debe mostrar la alerta de admin
+        if (isAdmin && document.cookie.includes('show_admin_alert=true')) {
+          alert('⚠️ ADVERTENCIA: Has iniciado sesión como Administrador.\n\nTienes acceso total al sistema. Por favor, navega con precaución y asegúrate de realizar las acciones correctamente.');
+          document.cookie = 'show_admin_alert=; max-age=0; path=/';
+        }
+      });
+    </script>
+
+    <main>{% block content %}{% endblock %}</main>
+  </body>
+</html>

@@ -1,0 +1,54 @@
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d  
+
+##
+ESPERAR 2 MINUTOS
+##
+# Primero el setup.sql
+docker exec -it basesoracle-oracle-db-1 sqlplus sys/oracle123@//localhost:1521/XE as sysdba "@/opt/oracle/scripts/startup/01_setup.sql"
+
+SQL> exit
+
+# Luego base_datos.sql
+docker exec -it basesoracle-oracle-db-1 sqlplus recycling_app/password123@//localhost:1521/XE "@/opt/oracle/scripts/startup/02_create_tables.sql"
+
+SQL> exit
+
+# Finalmente pruebas.sql
+docker cp pruebas.sql basesoracle-oracle-db-1:/opt/oracle/pruebas.sql
+
+docker exec -it basesoracle-oracle-db-1 sqlplus recycling_app/password123@//localhost:1521/XE "@/opt/oracle/pruebas.sql"
+
+
+---sql console---
+docker exec -it basesoracle-oracle-db-1 sqlplus recycling_app/password123@//localhost:1521/XE
+
+SQL> SELECT table_name FROM user_tables;
+SQL> SELECT * FROM recycling_app.reciclaje;
+
+
+## logs
+
+docker ps
+
+docker-compose logs -f
+
+## python ##
+
+python -m venv venv
+
+## venv\Scripts\activate
+
+.\venv\Scripts\Activate.ps1
+
+python -m pip install oracledb --upgrade
+
+pip install -r requirements.txt
+
+uvicorn app.main:app --reload
+
+--- super user ---
+
+email sudo@admin.com
+password ADMIN2024

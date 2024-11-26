@@ -1,0 +1,138 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h1>Registro de Usuario</h1>
+
+  {% if error %}
+  <div class="error-message">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" action="/register" onsubmit="return validateForm()">
+    <div class="form-group">
+      <label for="documento">Documento:</label>
+      <input type="text" id="documento" name="documento" required pattern="[0-9]{8,12}" 
+             title="El documento debe tener entre 8 y 12 números" />
+      <small class="form-help">Solo números, entre 8 y 12 dígitos</small>
+    </div>
+
+    <div class="form-group">
+      <label for="telefono">Teléfono:</label>
+      <input type="tel" id="telefono" name="telefono" required 
+             pattern="^(\+57|57)?[3][0-9]{9}$"
+             title="Ingrese un número de celular colombiano válido" />
+      <small class="form-help">Formato: 3XXXXXXXXX (10 dígitos, comenzando con 3)</small>
+    </div>
+
+    <div class="form-group">
+      <label for="nombre">Nombre:</label>
+      <input type="text" id="nombre" name="nombre" required maxlength="20" 
+             pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+" 
+             title="Solo letras y espacios permitidos"/>
+    </div>
+
+    <div class="form-group">
+      <label for="apellido">Apellido:</label>
+      <input type="text" id="apellido" name="apellido" required maxlength="20" 
+             pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+" 
+             title="Solo letras y espacios permitidos"/>
+    </div>
+
+    <div class="form-group">
+      <label for="correo">Correo:</label>
+      <input type="email" id="correo" name="correo" required />
+    </div>
+
+    <div class="form-group">
+      <label for="contrasena">Contraseña:</label>
+      <input type="password" id="contrasena" name="contrasena" required 
+             pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+             title="Mínimo 8 caracteres, al menos una letra y un número" />
+      <small class="form-help">Mínimo 8 caracteres, al menos una letra y un número</small>
+    </div>
+
+    <button type="submit" class="button">Registrarse</button>
+    <a href="/login" class="button cancel">Ya tengo cuenta</a>
+  </form>
+</div>
+
+<style>
+.form-help {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875em;
+  color: #6c757d;
+}
+
+input:invalid {
+  border-color: #dc3545;
+}
+
+input:invalid + .form-help {
+  color: #dc3545;
+}
+
+input:valid {
+  border-color: #28a745;
+}
+</style>
+
+<script>
+function validateForm() {
+    const telefono = document.getElementById('telefono').value;
+    const documento = document.getElementById('documento').value;
+    const nombre = document.getElementById('nombre').value;
+    const apellido = document.getElementById('apellido').value;
+    const contrasena = document.getElementById('contrasena').value;
+
+    // Validar teléfono
+    const phoneRegex = /^(\+57|57)?[3][0-9]{9}$/;
+    if (!phoneRegex.test(telefono)) {
+        alert('Por favor ingrese un número de celular colombiano válido (10 dígitos comenzando con 3)');
+        return false;
+    }
+
+    // Validar documento
+    const docRegex = /^[0-9]{8,12}$/;
+    if (!docRegex.test(documento)) {
+        alert('El documento debe tener entre 8 y 12 números');
+        return false;
+    }
+
+    // Validar nombre y apellido
+    const nameRegex = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/;
+    if (!nameRegex.test(nombre) || !nameRegex.test(apellido)) {
+        alert('El nombre y apellido solo pueden contener letras y espacios');
+        return false;
+    }
+
+    // Validar contraseña
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!passwordRegex.test(contrasena)) {
+        alert('La contraseña debe tener al menos 8 caracteres, una letra y un número');
+        return false;
+    }
+
+    return true;
+}
+
+// Formatear automáticamente el número de teléfono
+document.getElementById('telefono').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, ''); // Remover no-dígitos
+    if (value.length > 0 && value[0] !== '3') {
+        value = '3' + value.substring(1);
+    }
+    if (value.length > 10) {
+        value = value.substring(0, 10);
+    }
+    e.target.value = value;
+});
+
+// Formatear automáticamente el documento
+document.getElementById('documento').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, ''); // Remover no-dígitos
+    if (value.length > 12) {
+        value = value.substring(0, 12);
+    }
+    e.target.value = value;
+});
+</script>
+{% endblock %}

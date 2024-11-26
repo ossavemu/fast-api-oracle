@@ -1,0 +1,388 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h1>{% if evento %}Editar{% else %}Crear Nuevo{% endif %} Evento</h1>
+
+  <form method="post" action="{% if evento %}/evento/edit/{{ evento[0] }}{% else %}/evento/create{% endif %}">
+    <div class="form-sections">
+      <!-- Detalles básicos del evento -->
+      <section class="form-section">
+        <h2>Detalles del Evento</h2>
+        <div class="form-group">
+          <label for="nombre">Nombre del Evento:</label>
+          <input 
+            type="text" 
+            id="nombre" 
+            name="nombre" 
+            value="{{ evento[3] if evento else '' }}" 
+            required 
+            maxlength="20"
+            placeholder="Máximo 20 caracteres"
+          />
+          <small class="char-count">0/20</small>
+        </div>
+
+        <div class="form-group">
+          <label for="lugar">Lugar:</label>
+          <input 
+            type="text" 
+            id="lugar" 
+            name="lugar" 
+            value="{{ evento[4] if evento else '' }}" 
+            required 
+            maxlength="20"
+            placeholder="Máximo 20 caracteres"
+          />
+          <small class="char-count">0/20</small>
+        </div>
+
+        <div class="form-group">
+          <label for="fecha">Fecha:</label>
+          <input 
+            type="date" 
+            id="fecha" 
+            name="fecha" 
+            value="{{ evento[7].strftime('%Y-%m-%d') if evento else '' }}" 
+            required 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="h_inicio">Hora Inicio:</label>
+          <input 
+            type="time" 
+            id="h_inicio" 
+            name="h_inicio" 
+            value="{{ evento[5].strftime('%H:%M') if evento else '' }}" 
+            required 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="h_final">Hora Final:</label>
+          <input 
+            type="time" 
+            id="h_final" 
+            name="h_final" 
+            value="{{ evento[6].strftime('%H:%M') if evento else '' }}" 
+            required 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="id_tipo_reciclaje">Tipo de Reciclaje:</label>
+          <select id="id_tipo_reciclaje" name="id_tipo_reciclaje" required>
+            {% for tipo in tipos_reciclaje %}
+            <option value="{{ tipo[0] }}" {% if evento and tipo[0] == evento[2] %}selected{% endif %}>
+              {{ tipo[1] }} - {{ tipo[2] }} ({{ tipo[3] }} puntos)
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+      </section>
+
+      <!-- Sección de Bonos -->
+      <section class="form-section">
+        <h2>Bonos del Evento</h2>
+        <div id="bonos-container">
+          {% if bonos %}
+            {% for bono in bonos %}
+            <div class="bono-item">
+              <input 
+                type="text" 
+                name="bono_descripcion" 
+                value="{{ bono[1] }}" 
+                placeholder="Descripción del bono (máx. 120 caracteres)" 
+                required 
+                maxlength="120"
+              >
+              <input 
+                type="number" 
+                name="bono_valor" 
+                value="{{ bono[2] }}" 
+                placeholder="Valor en puntos" 
+                required 
+                min="1"
+              >
+              <button type="button" class="button delete small" onclick="removeBono(this)">Eliminar</button>
+            </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+        <button type="button" class="button" onclick="addBono()">+ Agregar Bono</button>
+      </section>
+
+      <!-- Sección de Premios -->
+      <section class="form-section">
+        <h2>Premios del Evento</h2>
+        <div id="premios-container">
+          {% if premios %}
+            {% for premio in premios %}
+            <div class="premio-item">
+              <textarea 
+                name="premio_descripcion" 
+                placeholder="Descripción del premio" 
+                required
+              >{{ premio[1] }}</textarea>
+              <button type="button" class="button delete small" onclick="removePremio(this)">Eliminar</button>
+            </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+        <button type="button" class="button" onclick="addPremio()">+ Agregar Premio</button>
+      </section>
+
+      <!-- Observaciones -->
+      <section class="form-section">
+        <h2>Observaciones</h2>
+        <div class="form-group">
+          <textarea id="observaciones" name="observaciones" rows="3">{{ evento[8] if evento else '' }}</textarea>
+        </div>
+      </section>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="button">{% if evento %}Actualizar{% else %}Crear{% endif %} Evento</button>
+      <a href="/evento/" class="button cancel">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<style>
+.form-sections {
+  display: grid;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.form-section {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.form-section h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5em;
+  color: #555;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.5em;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.bono-item, .premio-item {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.bono-item input, 
+.premio-item textarea {
+  width: 100%;
+  padding: 0.5em;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.premio-item {
+  grid-template-columns: 1fr auto;
+}
+
+.premio-item textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+.button.small {
+  padding: 0.25em 0.5em;
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+.form-actions {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.char-count {
+  position: absolute;
+  right: 0;
+  bottom: -1.2em;
+  font-size: 0.8em;
+  color: #666;
+}
+
+.char-count.near-limit {
+  color: #f0ad4e;
+}
+
+.char-count.at-limit {
+  color: #dc3545;
+}
+</style>
+
+<script>
+// Agregar contadores de caracteres
+document.querySelectorAll('input[maxlength]').forEach(input => {
+    const counter = input.parentElement.querySelector('.char-count');
+    
+    function updateCounter() {
+        const remaining = input.value.length;
+        const max = input.getAttribute('maxlength');
+        counter.textContent = `${remaining}/${max}`;
+        
+        if (remaining >= max) {
+            counter.classList.add('at-limit');
+            counter.classList.remove('near-limit');
+        } else if (remaining >= max * 0.8) {
+            counter.classList.add('near-limit');
+            counter.classList.remove('at-limit');
+        } else {
+            counter.classList.remove('near-limit', 'at-limit');
+        }
+    }
+    
+    input.addEventListener('input', updateCounter);
+    updateCounter(); // Inicializar contador
+});
+
+// Validación del formulario
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Validar fecha y hora
+    const fecha = document.getElementById('fecha').value;
+    const h_inicio = document.getElementById('h_inicio').value;
+    const h_final = document.getElementById('h_final').value;
+    
+    if (h_inicio >= h_final) {
+        alert('La hora de inicio debe ser anterior a la hora final');
+        return;
+    }
+
+    // Validar longitudes
+    const nombre = document.getElementById('nombre').value;
+    const lugar = document.getElementById('lugar').value;
+
+    if (nombre.length > 20 || lugar.length > 20) {
+        alert('El nombre y lugar del evento no pueden exceder los 20 caracteres');
+        return;
+    }
+
+    // Convertir los campos a arrays antes de enviar
+    const formData = new FormData(this);
+    
+    // Convertir los campos individuales a arrays
+    const bonoDescripciones = Array.from(document.querySelectorAll('input[name="bono_descripcion"]')).map(input => input.value);
+    const bonoValores = Array.from(document.querySelectorAll('input[name="bono_valor"]')).map(input => input.value);
+    const premioDescripciones = Array.from(document.querySelectorAll('textarea[name="premio_descripcion"]')).map(textarea => textarea.value);
+
+    // Limpiar los valores anteriores
+    formData.delete('bono_descripcion');
+    formData.delete('bono_valor');
+    formData.delete('premio_descripcion');
+
+    // Agregar los arrays
+    bonoDescripciones.forEach(desc => formData.append('bono_descripcion', desc));
+    bonoValores.forEach(valor => formData.append('bono_valor', valor));
+    premioDescripciones.forEach(desc => formData.append('premio_descripcion', desc));
+
+    // Enviar el formulario usando fetch
+    fetch(this.action, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else if (!response.ok) {
+            return response.text().then(text => {
+                try {
+                    const data = JSON.parse(text);
+                    throw new Error(data.detail || 'Error al crear el evento');
+                } catch (e) {
+                    // Si no es JSON, probablemente es HTML de error
+                    document.open();
+                    document.write(text);
+                    document.close();
+                }
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al crear el evento: ' + error.message);
+    });
+});
+
+function addBono() {
+    const container = document.getElementById('bonos-container');
+    const bonoHtml = `
+        <div class="bono-item">
+            <input 
+                type="text" 
+                name="bono_descripcion" 
+                placeholder="Descripción del bono (máx. 120 caracteres)" 
+                required 
+                maxlength="120"
+            >
+            <input 
+                type="number" 
+                name="bono_valor" 
+                placeholder="Valor en puntos" 
+                required 
+                min="1"
+            >
+            <button type="button" class="button delete small" onclick="removeBono(this)">Eliminar</button>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', bonoHtml);
+}
+
+function addPremio() {
+    const container = document.getElementById('premios-container');
+    const premioHtml = `
+        <div class="premio-item">
+            <textarea 
+                name="premio_descripcion" 
+                placeholder="Descripción del premio" 
+                required
+            ></textarea>
+            <button type="button" class="button delete small" onclick="removePremio(this)">Eliminar</button>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', premioHtml);
+}
+
+function removeBono(button) {
+    button.closest('.bono-item').remove();
+}
+
+function removePremio(button) {
+    button.closest('.premio-item').remove();
+}
+</script>
+{% endblock %}

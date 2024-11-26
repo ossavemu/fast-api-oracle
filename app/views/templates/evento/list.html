@@ -1,0 +1,129 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h1>Eventos de Reciclaje</h1>
+
+  <a href="/evento/create" class="button">Nuevo Evento</a>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Lugar</th>
+        <th>Fecha</th>
+        <th>Horario</th>
+        <th>Tipo</th>
+        <th>Bonos y Premios</th>
+        <th>Organizador</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for evento in eventos %}
+      <tr>
+        <td>{{ evento[3] }}</td>
+        <td>{{ evento[4] }}</td>
+        <td>{{ evento[7].strftime('%Y-%m-%d') }}</td>
+        <td>
+          {{ evento[5].strftime('%H:%M') }} - {{ evento[6].strftime('%H:%M') }}
+        </td>
+        <td>{{ evento[10] }}</td>
+        <td>
+          {% if evento[12] > 0 or evento[13] > 0 %}
+            <div class="badges">
+              {% if evento[12] > 0 %}
+                <span class="badge">
+                  {{ evento[12] }} bonos ({{ evento[14] }} pts)
+                </span>
+              {% endif %}
+              {% if evento[13] > 0 %}
+                <span class="badge premio">
+                  {{ evento[13] }} premios
+                </span>
+              {% endif %}
+            </div>
+          {% else %}
+            <span class="badge muted">Sin bonos ni premios</span>
+          {% endif %}
+        </td>
+        <td>{{ evento[9] }}</td>
+        <td class="actions">
+          <a href="/evento/{{ evento[0] }}" class="button">Ver Detalles</a>
+          {% if current_user == evento[11] or is_admin %}
+            <a href="/evento/edit/{{ evento[0] }}" class="button edit">Editar</a>
+            <button onclick="deleteEvento({{ evento[0] }})" class="button delete">
+              Eliminar
+            </button>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<style>
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+  padding: 0.3em 0.8em;
+  border-radius: 4px;
+  font-size: 0.85em;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+  display: inline-block;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.badge.premio {
+  background-color: rgba(0, 123, 255, 0.1);
+  color: #007bff;
+  border-color: rgba(0, 123, 255, 0.2);
+}
+
+.badge.muted {
+  background-color: rgba(108, 117, 125, 0.1);
+  color: #6c757d;
+  border-color: rgba(108, 117, 125, 0.2);
+}
+
+.actions {
+  white-space: nowrap;
+}
+
+td.actions a, 
+td.actions button {
+  margin: 0.2em;
+}
+</style>
+
+<script>
+async function deleteEvento(id) {
+  if (confirm('¿Estás seguro de eliminar este evento?')) {
+    try {
+      const response = await fetch(`/evento/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        const error = await response.json();
+        alert('Error al eliminar: ' + error.detail);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al eliminar el evento');
+    }
+  }
+}
+</script>
+{% endblock %}

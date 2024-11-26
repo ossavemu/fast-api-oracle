@@ -1,0 +1,83 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h1>Editar Evento</h1>
+
+  <form method="post" action="/evento/edit/{{ evento[0] }}">
+    <div class="form-group">
+      <label for="nombre">Nombre del Evento:</label>
+      <input type="text" id="nombre" name="nombre" value="{{ evento[3] }}" required />
+    </div>
+
+    <div class="form-group">
+      <label for="lugar">Lugar:</label>
+      <input type="text" id="lugar" name="lugar" value="{{ evento[4] }}" required />
+    </div>
+
+    <div class="form-group">
+      <label for="fecha">Fecha:</label>
+      <input 
+        type="date" 
+        id="fecha" 
+        name="fecha" 
+        value="{{ evento[7].strftime('%Y-%m-%d') }}" 
+        required 
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="h_inicio">Hora Inicio:</label>
+      <input 
+        type="time" 
+        id="h_inicio" 
+        name="h_inicio" 
+        value="{{ evento[5].strftime('%H:%M') }}" 
+        required 
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="h_final">Hora Final:</label>
+      <input 
+        type="time" 
+        id="h_final" 
+        name="h_final" 
+        value="{{ evento[6].strftime('%H:%M') }}" 
+        required 
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="id_tipo_reciclaje">Tipo de Reciclaje:</label>
+      <select id="id_tipo_reciclaje" name="id_tipo_reciclaje" required>
+        {% for tipo in tipos_reciclaje %}
+        <option value="{{ tipo[0] }}" {% if tipo[0] == evento[2] %}selected{% endif %}>
+          {{ tipo[1] }} - {{ tipo[2] }} ({{ tipo[3] }} puntos)
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="observaciones">Observaciones:</label>
+      <textarea id="observaciones" name="observaciones" rows="3">{{ evento[8] or '' }}</textarea>
+    </div>
+
+    <button type="submit" class="button">Actualizar</button>
+    <a href="/evento/{{ evento[0] }}" class="button cancel">Cancelar</a>
+  </form>
+</div>
+
+<script>
+// Validación de fechas y horas
+document.querySelector('form').addEventListener('submit', function(e) {
+    const fecha = document.getElementById('fecha').value;
+    const h_inicio = document.getElementById('h_inicio').value;
+    const h_final = document.getElementById('h_final').value;
+    
+    if (h_inicio >= h_final) {
+        e.preventDefault();
+        alert('La hora de inicio debe ser anterior a la hora final');
+    }
+});
+</script>
+{% endblock %} 

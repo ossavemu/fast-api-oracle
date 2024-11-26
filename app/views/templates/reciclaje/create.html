@@ -1,0 +1,184 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h1>Nuevo Reciclaje</h1>
+
+  <form method="post" action="/reciclaje/create">
+    <div class="form-sections">
+      <!-- Sección principal -->
+      <section class="form-section">
+        <h2>Detalles del Reciclaje</h2>
+        <div class="form-group">
+          <label for="id_evento">Evento:</label>
+          <select id="id_evento" name="id_evento" required onchange="cargarBonos(this.value)">
+            <option value="">Seleccione un evento</option>
+            {% for evento in eventos %}
+            <option value="{{ evento[0] }}" data-puntos="{{ evento[2] }}">
+              {{ evento[1] }} - {{ evento[3] }} ({{ evento[2] }} puntos por unidad)
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="cantidad">Cantidad:</label>
+          <input 
+            type="number" 
+            id="cantidad" 
+            name="cantidad" 
+            required 
+            min="1"
+            onchange="calcularPuntos()"
+          />
+        </div>
+
+        <div class="puntos-info">
+          <p><strong>Puntos Base:</strong> <span id="puntos-base">0</span></p>
+        </div>
+      </section>
+
+      <!-- Sección de bonos -->
+      <section class="form-section" id="bonos-section" style="display: none;">
+        <h2>Bonos Disponibles</h2>
+        <div id="bonos-container">
+          <!-- Los bonos se cargarán aquí dinámicamente -->
+        </div>
+        <div class="puntos-info">
+          <p><strong>Puntos por Bonos:</strong> <span id="puntos-bonos">0</span></p>
+          <p><strong>Total de Puntos:</strong> <span id="puntos-totales">0</span></p>
+        </div>
+      </section>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="button">Guardar</button>
+      <a href="/reciclaje/" class="button cancel">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<style>
+.form-sections {
+  display: grid;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.form-section {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.form-section h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.puntos-info {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.bono-item {
+  display: flex;
+  align-items: center;
+  padding: 0.8rem;
+  margin-bottom: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.bono-item input[type="checkbox"] {
+  margin-right: 1rem;
+}
+
+.bono-info {
+  flex-grow: 1;
+}
+
+.bono-puntos {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.form-actions {
+  margin-top: 2rem;
+  text-align: center;
+}
+</style>
+
+<script>
+let bonosDisponibles = [];
+
+function calcularPuntos() {
+    const select = document.getElementById('id_evento');
+    const option = select.options[select.selectedIndex];
+    if (option.value) {
+        const puntosPorUnidad = parseInt(option.dataset.puntos);
+        const cantidad = parseInt(document.getElementById('cantidad').value) || 0;
+        const puntosBase = puntosPorUnidad * cantidad;
+        document.getElementById('puntos-base').textContent = puntosBase;
+        actualizarTotal();
+    }
+}
+
+function actualizarTotal() {
+    const puntosBase = parseInt(document.getElementById('puntos-base').textContent) || 0;
+    let puntosBonos = 0;
+
+    // Sumar puntos de bonos seleccionados
+    document.querySelectorAll('input[name="bonos"]:checked').forEach(checkbox => {
+        puntosBonos += parseInt(checkbox.dataset.puntos);
+    });
+
+    document.getElementById('puntos-bonos').textContent = puntosBonos;
+    document.getElementById('puntos-totales').textContent = puntosBase + puntosBonos;
+}
+
+async function cargarBonos(idEvento) {
+    if (!idEvento) {
+        document.getElementById('bonos-section').style.display = 'none';
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/evento/${idEvento}/bonos`);
+        if (response.ok) {
+            const bonos = await response.json();
+            bonosDisponibles = bonos;
+            mostrarBonos(bonos);
+            document.getElementById('bonos-section').style.display = 'block';
+        } else {
+            console.error('Error al cargar bonos');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function mostrarBonos(bonos) {
+    const container = document.getElementById('bonos-container');
+    container.innerHTML = bonos.map(bono => `
+        <div class="bono-item">
+            <input type="checkbox" 
+                   name="bonos" 
+                   value="${bono.id_bono}"
+                   data-puntos="${bono.valor_puntos}"
+                   onchange="actualizarTotal()"
+            >
+            <div class="bono-info">
+                <div>${bono.descripcion}</div>
+                <div class="bono-puntos">+${bono.valor_puntos} puntos</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Calcular puntos iniciales
+calcularPuntos();
+</script>
+{% endblock %}

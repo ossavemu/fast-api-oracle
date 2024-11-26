@@ -1,0 +1,179 @@
+{% extends "base.html" %} {% block content %}
+<div class="landing-container">
+  <header class="hero">
+    <h1>Bienvenido a Recycling App</h1>
+    <p class="tagline">Juntos por un mundo más limpio y sostenible</p>
+  </header>
+
+  {% if not request.cookies.get("access_token") %}
+  <div class="cta-buttons">
+    <a href="/login" class="button primary">Iniciar Sesión</a>
+    <a href="/register" class="button secondary">Registrarse</a>
+  </div>
+  {% endif %}
+
+  <section class="features">
+    <h2>¿Qué hacemos?</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <i class="fas fa-recycle"></i>
+        <h3>Reciclaje Organizado</h3>
+        <p>Participa en eventos de reciclaje organizados por la comunidad y contribuye al cuidado del medio ambiente.</p>
+      </div>
+
+      <div class="feature-card">
+        <i class="fas fa-trophy"></i>
+        <h3>Sistema de Puntos</h3>
+        <p>Gana puntos por cada material reciclado. Diferentes materiales tienen diferentes valores.</p>
+      </div>
+
+      <div class="feature-card">
+        <i class="fas fa-users"></i>
+        <h3>Comunidad Activa</h3>
+        <p>Únete a una comunidad comprometida con el reciclaje y compite en el ranking de recicladores.</p>
+      </div>
+
+      <div class="feature-card">
+        <i class="fas fa-award"></i>
+        <h3>Premios y Reconocimientos</h3>
+        <p>Obtén premios y reconocimientos por tus contribuciones al reciclaje.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="how-it-works">
+    <h2>¿Cómo Funciona?</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h3>Regístrate</h3>
+        <p>Crea tu cuenta gratuita para empezar a participar.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <h3>Encuentra Eventos</h3>
+        <p>Busca eventos de reciclaje cercanos a ti.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <h3>Recicla</h3>
+        <p>Lleva tus materiales reciclables al evento.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">4</div>
+        <h3>Gana Puntos</h3>
+        <p>Acumula puntos por tus aportes y compite en el ranking.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="materials">
+    <h2>Materiales que Reciclamos</h2>
+    <div class="materials-grid">
+      <div class="material-card">
+        <h3>Plástico</h3>
+        <p>10 puntos por unidad</p>
+      </div>
+      <div class="material-card">
+        <h3>Vidrio</h3>
+        <p>15 puntos por unidad</p>
+      </div>
+      <div class="material-card">
+        <h3>Papel</h3>
+        <p>5 puntos por unidad</p>
+      </div>
+      <div class="material-card">
+        <h3>Metal</h3>
+        <p>20 puntos por unidad</p>
+      </div>
+    </div>
+  </section>
+
+  {% if request.cookies.get("access_token") %}
+  <section class="user-actions">
+    <h2>¿Qué quieres hacer?</h2>
+    <div class="action-buttons">
+      <a href="/evento" class="button">Ver Eventos</a>
+      <a href="/reciclaje" class="button">Registrar Reciclaje</a>
+      <a href="/ranking" class="button">Ver Ranking</a>
+    </div>
+  </section>
+  {% endif %}
+</div>
+
+<div id="adminAlert" class="admin-alert" style="display: none;">
+    <div class="admin-alert-content">
+        <h2>⚠️ ADVERTENCIA: Modo Administrador</h2>
+        <p>Has iniciado sesión como Administrador del sistema.</p>
+        <p>Tienes acceso total a todas las funcionalidades. Por favor:</p>
+        <ul>
+            <li>Navega con precaución</li>
+            <li>Verifica antes de eliminar registros</li>
+            <li>Confirma los cambios importantes</li>
+            <li>Asegúrate de realizar las acciones correctamente</li>
+        </ul>
+        <button onclick="closeAdminAlert()" class="button">Entendido</button>
+    </div>
+</div>
+
+<style>
+.admin-alert {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.admin-alert-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 500px;
+    text-align: left;
+}
+
+.admin-alert-content h2 {
+    color: #dc3545;
+    margin-top: 0;
+}
+
+.admin-alert-content ul {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.admin-alert-content li {
+    margin-bottom: 0.5rem;
+}
+
+.admin-alert button {
+    margin-top: 1rem;
+    width: 100%;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cookies = document.cookie.split(';');
+    const showAdminAlert = cookies.find(cookie => cookie.trim().startsWith('show_admin_alert='));
+    
+    if (showAdminAlert) {
+        document.getElementById('adminAlert').style.display = 'flex';
+        document.cookie = 'show_admin_alert=; max-age=0; path=/';
+    }
+});
+
+function closeAdminAlert() {
+    document.getElementById('adminAlert').style.display = 'none';
+}
+</script>
+{% endblock %} 

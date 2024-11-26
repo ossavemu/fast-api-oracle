@@ -1,0 +1,118 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h1>{{ evento[3] }}</h1>
+
+  <div class="event-actions">
+    {% if current_user == evento[9] %}
+      <a href="/evento/edit/{{ evento[0] }}" class="button edit">Editar Evento</a>
+    {% endif %}
+  </div>
+
+  <div class="event-details">
+    <p><strong>Lugar:</strong> {{ evento[4] }}</p>
+    <p><strong>Fecha:</strong> {{ evento[7].strftime('%Y-%m-%d') }}</p>
+    <p><strong>Horario:</strong> {{ evento[5].strftime('%H:%M') }} - {{ evento[6].strftime('%H:%M') }}</p>
+    <p><strong>Tipo de Reciclaje:</strong> {{ evento[10] }} ({{ evento[11] }} puntos por unidad)</p>
+    <p><strong>Organizador:</strong> {{ evento[9] }}</p>
+    {% if evento[8] %}
+      <p><strong>Observaciones:</strong> {{ evento[8] }}</p>
+    {% endif %}
+  </div>
+
+  <div class="event-bonuses">
+    <h2>
+      <i class="fas fa-star"></i> 
+      Bonos y Premios
+    </h2>
+    {% if bonos %}
+      <div class="bonus-grid">
+        {% for bono in bonos %}
+          <div class="bonus-card">
+            <h3>{{ bono[1] }}</h3>
+            <p class="bonus-points">+{{ bono[2] }} puntos extra</p>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted-text">No hay bonos disponibles para este evento.</p>
+    {% endif %}
+  </div>
+
+  <div class="event-stats">
+    <h2>Estadísticas del Evento</h2>
+    <p>Total de Reciclajes: {{ stats[0] }}</p>
+    <p>Items Reciclados: {{ stats[1] }}</p>
+    <p>Puntos Generados: {{ stats[2] }}</p>
+  </div>
+
+  <div class="event-participants">
+    <h2>Participantes</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Participante</th>
+          <th>Reciclajes</th>
+          <th>Puntos</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for participante in participantes %}
+        <tr>
+          <td>{{ participante[0] }}</td>
+          <td>{{ participante[1] }}</td>
+          <td>{{ participante[2] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <a href="/evento/" class="button">Volver a la Lista</a>
+</div>
+
+<style>
+.event-actions {
+  margin-bottom: 2rem;
+}
+
+.event-bonuses {
+  margin: 2rem 0;
+}
+
+.bonus-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.bonus-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.bonus-points {
+  color: #28a745;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.button.small {
+  padding: 0.25em 0.5em;
+  font-size: 0.9rem;
+  margin-left: 1rem;
+}
+
+.button i {
+  margin-right: 0.5rem;
+}
+
+.muted-text {
+  color: #6c757d;
+  font-style: italic;
+}
+</style>
+{% endblock %}

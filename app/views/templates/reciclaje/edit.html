@@ -1,0 +1,76 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h1>Editar Reciclaje</h1>
+
+  <form action="/reciclaje/edit/{{ reciclaje.id_reciclaje }}" method="post">
+    <div class="form-group">
+      <label for="id_evento">Evento:</label>
+      <select id="id_evento" name="id_evento" required>
+        {% for evento in eventos %}
+        <option value="{{ evento[0] }}" {% if evento[0] == reciclaje.id_evento %}selected{% endif %}>
+          {{ evento[1] }} - {{ evento[3] }} ({{ evento[2] }} puntos por unidad)
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="cantidad">Cantidad:</label>
+      <input 
+        type="number" 
+        id="cantidad" 
+        name="cantidad" 
+        value="{{ reciclaje.cantidad }}"
+        required 
+        min="1"
+        onchange="calcularPuntos()"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="puntos_bono">Puntos Bono:</label>
+      <input 
+        type="number" 
+        id="puntos_bono" 
+        name="puntos_bono" 
+        value="{{ reciclaje.puntos_bono }}"
+        required 
+        min="0"
+        onchange="calcularTotal()"
+      />
+    </div>
+
+    <div class="form-group">
+      <p><strong>Puntos Base:</strong> <span id="puntos-base">{{ reciclaje.puntos }}</span></p>
+      <p><strong>Puntos Totales:</strong> <span id="puntos-totales">{{ reciclaje.puntos_totales }}</span></p>
+    </div>
+
+    <button type="submit" class="button">Actualizar</button>
+    <a href="/reciclaje/" class="button cancel">Cancelar</a>
+  </form>
+</div>
+
+<script>
+function calcularPuntos() {
+    const select = document.getElementById('id_evento');
+    const option = select.options[select.selectedIndex];
+    if (option.value) {
+        const puntosPorUnidad = parseInt(option.text.match(/\((\d+) puntos/)[1]);
+        const cantidad = parseInt(document.getElementById('cantidad').value) || 0;
+        const puntosBase = puntosPorUnidad * cantidad;
+        document.getElementById('puntos-base').textContent = puntosBase;
+        calcularTotal();
+    }
+}
+
+function calcularTotal() {
+    const puntosBase = parseInt(document.getElementById('puntos-base').textContent) || 0;
+    const puntosBono = parseInt(document.getElementById('puntos_bono').value) || 0;
+    const total = puntosBase + puntosBono;
+    document.getElementById('puntos-totales').textContent = total;
+}
+
+// Calcular totales iniciales
+calcularPuntos();
+</script>
+{% endblock %}

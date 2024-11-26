@@ -1,0 +1,103 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h1>Bonos y Premios del Evento</h1>
+
+  {% if is_organizer %}
+  <div class="form-sections">
+    <section class="form-section">
+      <h2>Agregar Bono</h2>
+      <form method="post" action="/evento/{{ id_evento }}/bonos">
+        <div class="form-group">
+          <label for="descripcion">Descripción del Bono:</label>
+          <input type="text" id="descripcion" name="descripcion" required maxlength="120">
+        </div>
+        <div class="form-group">
+          <label for="valor_puntos">Valor en Puntos:</label>
+          <input type="number" id="valor_puntos" name="valor_puntos" required min="1">
+        </div>
+        <button type="submit" class="button">Crear Bono</button>
+      </form>
+    </section>
+
+    <section class="form-section">
+      <h2>Agregar Premio</h2>
+      <form method="post" action="/evento/{{ id_evento }}/premios">
+        <div class="form-group">
+          <label for="descripcion_premio">Descripción del Premio:</label>
+          <textarea id="descripcion_premio" name="descripcion_premio" required rows="3"></textarea>
+        </div>
+        <button type="submit" class="button">Crear Premio</button>
+      </form>
+    </section>
+  </div>
+  {% endif %}
+
+  <section class="bonos-section">
+    <h2>Bonos Disponibles</h2>
+    {% if bonos %}
+    <div class="bonos-grid">
+      {% for bono in bonos %}
+      <div class="bono-card">
+        <h3>{{ bono[1] }}</h3>
+        <p class="puntos">{{ bono[2] }} puntos</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p>No hay bonos disponibles para este evento.</p>
+    {% endif %}
+  </section>
+
+  <section class="premios-section">
+    <h2>Premios del Evento</h2>
+    {% if premios %}
+    <div class="premios-grid">
+      {% for premio in premios %}
+      <div class="premio-card">
+        <p>{{ premio[1] }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p>No hay premios definidos para este evento.</p>
+    {% endif %}
+  </section>
+
+  <a href="/evento/{{ id_evento }}" class="button">Volver al Evento</a>
+</div>
+
+<style>
+.form-sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.form-section {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.bonos-grid, .premios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.bono-card, .premio-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.puntos {
+  color: #28a745;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+</style>
+{% endblock %} 

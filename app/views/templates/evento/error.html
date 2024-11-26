@@ -1,0 +1,31 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h1>Error</h1>
+  
+  <div class="error-message">
+    {{ error }}
+  </div>
+
+  <div class="actions">
+    <a href="/evento/" class="button">Volver a la lista de eventos</a>
+    <a href="javascript:history.back()" class="button cancel">Volver atrás</a>
+  </div>
+</div>
+
+<style>
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+.actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+}
+</style>
+{% endblock %} 

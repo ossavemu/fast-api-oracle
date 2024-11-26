@@ -1,0 +1,95 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h1>Gestión de Materiales</h1>
+
+  <form method="post" action="/materiales/create" class="material-form">
+    <h2>Agregar Nuevo Material</h2>
+    <div class="form-group">
+      <label for="nombre">Nombre:</label>
+      <input type="text" id="nombre" name="nombre" required maxlength="20">
+    </div>
+
+    <div class="form-group">
+      <label for="caracteristicas">Características:</label>
+      <input type="text" id="caracteristicas" name="caracteristicas" required maxlength="50">
+    </div>
+
+    <div class="form-group">
+      <label for="puntos_botella">Puntos por Unidad:</label>
+      <input type="number" id="puntos_botella" name="puntos_botella" required min="1">
+    </div>
+
+    <button type="submit" class="button">Agregar Material</button>
+  </form>
+
+  <h2>Materiales Existentes</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Características</th>
+        <th>Puntos por Unidad</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for material in materiales %}
+      <tr>
+        <td>{{ material[1] }}</td>
+        <td>{{ material[2] }}</td>
+        <td>{{ material[3] }}</td>
+        <td class="actions">
+          <a href="/materiales/edit/{{ material[0] }}" class="button edit">Editar</a>
+          <button onclick="deleteMaterial({{ material[0] }})" class="button delete">Eliminar</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<style>
+.material-form {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.material-form h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+</style>
+
+<script>
+async function deleteMaterial(id) {
+  if (confirm('¿Estás seguro de eliminar este material? Esta acción no se puede deshacer.')) {
+    try {
+      const response = await fetch(`/materiales/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        const error = await response.json();
+        alert('Error al eliminar: ' + error.detail);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al eliminar el material');
+    }
+  }
+}
+</script>
+{% endblock %} 

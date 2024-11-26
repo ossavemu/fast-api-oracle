@@ -1,0 +1,44 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h1>Editar Material</h1>
+
+  <form method="post" action="/materiales/edit/{{ material[0] }}" class="material-form">
+    <div class="form-group">
+      <label for="nombre">Nombre:</label>
+      <input type="text" id="nombre" name="nombre" value="{{ material[1] }}" required maxlength="20">
+    </div>
+
+    <div class="form-group">
+      <label for="caracteristicas">Características:</label>
+      <input type="text" id="caracteristicas" name="caracteristicas" value="{{ material[2] }}" required maxlength="50">
+    </div>
+
+    <div class="form-group">
+      <label for="puntos_botella">Puntos por Unidad:</label>
+      <input type="number" id="puntos_botella" name="puntos_botella" value="{{ material[3] }}" required min="1">
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="button">Guardar Cambios</button>
+      <a href="/materiales/" class="button cancel">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<style>
+.material-form {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+</style>
+{% endblock %} 
