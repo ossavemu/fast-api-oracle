@@ -15,8 +15,8 @@
 ### 1. Clonar el repositorio
 Abre la terminal y clona el repositorio del proyecto:
 ```bash
-git clone <URL_DEL_REPOSITORIO>
-cd <NOMBRE_DEL_DIRECTORIO>
+git clone https://github.com/ossavemu/fast-api-oracle.git
+cd fast-api-oracle
 ```
 
 ### 2. Configurar el entorno virtual de Python
